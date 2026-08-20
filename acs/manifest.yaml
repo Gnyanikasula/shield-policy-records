@@ -1,24 +1,33 @@
 agent_control_specification_version: "0.3.1-beta"
 metadata:
-  name: shield-gdpr-022-fall-risk
+  name: shield-demo-full
 policies:
-  gdpr_art22_policy:
+  tool_call_policy:
     type: rego
     bundle: ./policy
-    query: data.shield_gdpr_022.verdict
+    query: data.shield_demo.tool_verdict
+  startup_policy:
+    type: rego
+    bundle: ./policy
+    query: data.shield_demo.startup_verdict
 intervention_points:
+  agent_startup:
+    policy_target: "$.agent"
+    policy_target_kind: agent_metadata
+    policy:
+      id: startup_policy
   pre_tool_call:
     policy_target: "$.tool_call.args"
     policy_target_kind: tool_args
     tool_name_from: "$.tool_call.name"
     policy:
-      id: gdpr_art22_policy
+      id: tool_call_policy
   post_tool_call:
     policy_target: "$.tool_result"
     policy_target_kind: tool_result
     tool_name_from: "$.tool_call.name"
     policy:
-      id: gdpr_art22_policy
+      id: tool_call_policy
 tools:
   get_patient_record:
     type: Tool
@@ -28,3 +37,11 @@ tools:
     type: Tool
     id: get_fall_risk
     clearance: internal
+  send_patient_data:
+    type: Tool
+    id: send_patient_data
+    clearance: external
+  external_analytics:
+    type: Tool
+    id: external_analytics
+    clearance: external
