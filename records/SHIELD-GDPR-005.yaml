@@ -1,0 +1,27 @@
+record_id: SHIELD-GDPR-005
+subject: healthcare_agent
+action: send_patient_data
+resource: patient_health_record
+condition:
+  - external_destination
+  - purpose_not_authorised
+scope_note: >
+  Models GDPR Article 5(1)(b), purpose limitation. Denies sending patient
+  data to an external destination unless the call carries a flag confirming
+  the destination and purpose are authorised. Does not separately model the
+  other five Article 5(1) principles (minimisation, accuracy, storage
+  limitation, integrity/confidentiality, accountability); those are left as
+  roadmap for additional records if this project is extended.
+decision: deny
+obligation:
+  regulation: GDPR
+  article: "Article 5(1)(b)"
+  source: "GDPR_Art5_Para1_b"
+  citation_text: >
+    Personal data shall be collected for specified, explicit and legitimate
+    purposes and not further processed in a manner that is incompatible with
+    those purposes.
+  gold_standard_ref: ANN_001
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"

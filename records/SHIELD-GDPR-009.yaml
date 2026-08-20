@@ -1,0 +1,30 @@
+record_id: SHIELD-GDPR-009
+subject: healthcare_agent
+action: get_patient_record
+resource: patient_health_record
+condition:
+  - data_scope_includes_health_data
+  - no_lawful_basis_flag_present
+scope_note: >
+  Models GDPR Article 9(1)'s prohibition on processing special category
+  health data. This record treats absence of an explicit lawful-basis flag
+  (e.g. consent, healthcare provision) on the call as sufficient to deny.
+  It does not individually model each Article 9(2) exception; the flag is a
+  single stand-in for "an Article 9(2) exception applies", reviewed and
+  accepted as sufficient for this demonstration's scope.
+decision: deny
+obligation:
+  regulation: GDPR
+  article: "Article 9(1)"
+  source: "GDPR_Art9_Para1"
+  citation_text: >
+    Processing of personal data revealing racial or ethnic origin, political
+    opinions, religious or philosophical beliefs, or trade union membership,
+    and the processing of genetic data, biometric data for the purpose of
+    uniquely identifying a natural person, data concerning health or data
+    concerning a natural person's sex life or sexual orientation shall be
+    prohibited.
+  gold_standard_ref: ANN_004
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"

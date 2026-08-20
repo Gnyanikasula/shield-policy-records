@@ -1,0 +1,28 @@
+record_id: SHIELD-AIACT-ANNEXIII
+subject: healthcare_agent
+action: external_analytics
+resource: fall_risk_prediction_output
+condition:
+  - used_for_emergency_healthcare_triage
+scope_note: >
+  Models EU AI Act Annex III, point 5(d): AI systems used for emergency
+  healthcare patient triage are classified as high-risk. This record does
+  not itself deny the call; it is a classification flag that SHIELD-AIACT-026
+  (the deployer oversight obligation) acts on. Kept as a separate record
+  because classification and obligation are distinct deontic types in the
+  gold standard and should not be collapsed into one record.
+decision: warn
+obligation:
+  regulation: EU AI Act
+  article: "Annex III, point 5(d)"
+  source: "EUAI_AnnexIII_Point5_d"
+  citation_text: >
+    AI systems intended to evaluate and classify emergency calls by natural
+    persons or to be used to dispatch, or to establish priority in the
+    dispatching of, emergency first response services, including by police,
+    firefighters and medical aid, as well as of emergency healthcare patient
+    triage systems.
+  gold_standard_ref: ANN_036
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"

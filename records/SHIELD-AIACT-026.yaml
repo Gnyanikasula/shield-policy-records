@@ -1,0 +1,26 @@
+record_id: SHIELD-AIACT-026
+subject: healthcare_agent
+action: external_analytics
+resource: fall_risk_prediction_output
+condition:
+  - classified_high_risk_by_annex_iii
+  - no_human_oversight_assigned
+scope_note: >
+  Models EU AI Act Article 26(2). Denies use of the external analytics tool
+  on a high-risk-classified output (per SHIELD-AIACT-ANNEXIII) unless a
+  named, competent human overseer has been assigned to the call. Does not
+  model Article 26's other deployer duties (input data quality, monitoring,
+  log retention); left as roadmap.
+decision: deny
+obligation:
+  regulation: EU AI Act
+  article: "Article 26(2)"
+  source: "EUAI_Art26_Para2"
+  citation_text: >
+    Deployers shall assign human oversight to natural persons who have the
+    necessary competence, training and authority, as well as the necessary
+    support.
+  gold_standard_ref: ANN_030
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"

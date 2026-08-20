@@ -1,0 +1,30 @@
+record_id: SHIELD-MDR-002
+subject: healthcare_agent
+action: agent_startup
+resource: fall_risk_prediction_software
+condition:
+  - intended_purpose_is_medical_prediction
+scope_note: >
+  Models EU MDR Article 2(1)'s definition of "medical device", establishing
+  that fall-risk prediction software with an intended medical purpose
+  qualifies as a medical device under the Regulation. This is a foundational,
+  agent-level scoping record, not a per-tool-call gate; it is bound at
+  agent_startup rather than pre_tool_call or post_tool_call. Its decision is
+  informational (warn), flagging the classification rather than blocking
+  startup, since MDR conformity is a design-time and pre-market obligation
+  this demonstration does not implement.
+decision: warn
+obligation:
+  regulation: EU MDR 2017/745
+  article: "Article 2(1)"
+  source: "EUMDR_Art2_Para1"
+  citation_text: >
+    'Medical device' means any instrument, apparatus, appliance, software,
+    implant, reagent, material or other article intended by the manufacturer
+    to be used, alone or in combination, for human beings for one or more
+    specific medical purposes including diagnosis, prevention, monitoring,
+    prediction, prognosis, treatment or alleviation of disease.
+  gold_standard_ref: ANN_038
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"
