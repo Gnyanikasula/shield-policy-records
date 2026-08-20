@@ -1,4 +1,5 @@
 record_id: SHIELD-AIACT-026
+reason_code: aiact_art26_no_human_oversight
 subject: healthcare_agent
 action: external_analytics
 resource: fall_risk_prediction_output

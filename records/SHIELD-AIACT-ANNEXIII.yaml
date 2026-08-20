@@ -1,4 +1,5 @@
 record_id: SHIELD-AIACT-ANNEXIII
+reason_code: aiact_annexiii_high_risk_classification
 subject: healthcare_agent
 action: external_analytics
 resource: fall_risk_prediction_output

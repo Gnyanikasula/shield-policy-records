@@ -1,4 +1,5 @@
 record_id: SHIELD-GDPR-009
+reason_code: gdpr_art9_no_lawful_basis
 subject: healthcare_agent
 action: get_patient_record
 resource: patient_health_record

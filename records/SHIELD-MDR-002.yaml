@@ -1,4 +1,5 @@
 record_id: SHIELD-MDR-002
+reason_code: mdr_art2_medical_device_classification
 subject: healthcare_agent
 action: agent_startup
 resource: fall_risk_prediction_software
