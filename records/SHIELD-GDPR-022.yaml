@@ -1,0 +1,30 @@
+record_id: SHIELD-GDPR-022
+subject: healthcare_agent
+action: get_fall_risk
+resource: patient_health_record
+condition:
+  - automated_decision_solely_from_score
+  - no_human_review_step
+  - produces_significant_effect_on_patient_care
+scope_note: >
+  This record models only the narrow case of GDPR Article 22(1): a decision
+  based solely on automated processing, with no human review step, producing
+  a significant effect. It intentionally does not model Article 22(2)'s
+  contract, legal authorisation, or explicit consent exceptions, nor Article
+  22(3)'s human intervention safeguard for those exception cases. Extending
+  this record to cover the exception path is out of scope for this
+  demonstration and is left as roadmap.
+decision: deny
+obligation:
+  regulation: GDPR
+  article: "Article 22(1)"
+  source: "GDPR_Art22_Para1"
+  citation_text: >
+    The data subject shall have the right not to be subject to a decision
+    based solely on automated processing, including profiling, which produces
+    legal effects concerning him or her or similarly significantly affects
+    him or her.
+  gold_standard_ref: ANN_011
+reviewer:
+  name: "Gnyani"
+  date: "2026-08-20"
