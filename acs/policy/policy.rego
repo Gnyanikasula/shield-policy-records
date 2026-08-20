@@ -40,25 +40,43 @@ tool_verdict := {
 }
 
 # SHIELD-AIACT-ANNEXIII -- EU AI Act Annex III point 5(d) -- external_analytics
-# Informational classification flag, non-blocking.
+# Informational classification flag, non-blocking. Fires only when
+# oversight is explicitly confirmed (true), not merely requested.
 tool_verdict := {
     "decision": "warn",
     "reason": "aiact_annexiii_high_risk_classification",
     "message": "SHIELD-AIACT-ANNEXIII: external_analytics output is used for emergency healthcare triage, classified high-risk under EU AI Act Annex III point 5(d)."
 } if {
     input.snapshot.tool_call.name == "external_analytics"
-    input.snapshot.tool_call.args.human_oversight_assigned
+    input.snapshot.tool_call.args.human_oversight_assigned == true
+}
+
+# Escalate mechanism demonstration (Phase 4, optional per Table 4).
+# Not a separate formal Policy Record -- this models the *process* of
+# requesting oversight (Art.26(2)'s assignment step) rather than a new
+# citation. When oversight has been requested but not yet confirmed,
+# escalate to a human approval resolver instead of a flat deny.
+tool_verdict := {
+    "decision": "escalate",
+    "reason": "aiact_art26_oversight_pending_approval",
+    "message": "SHIELD-AIACT-026: human oversight has been requested for this external_analytics call but not yet confirmed. Escalating for approval under EU AI Act Article 26(2)."
+} if {
+    input.snapshot.tool_call.name == "external_analytics"
+    input.snapshot.tool_call.args.human_oversight_assigned == "requested"
 }
 
 # SHIELD-AIACT-026 -- EU AI Act Art.26(2) -- external_analytics
-# Deny takes precedence over the warn case above when oversight is missing.
+# Fail-closed default: deny unless oversight is explicitly confirmed
+# (true) or explicitly requested (handled above). Covers false, missing,
+# and any unexpected value.
 tool_verdict := {
     "decision": "deny",
     "reason": "aiact_art26_no_human_oversight",
     "message": "SHIELD-AIACT-026: external_analytics call on a high-risk-classified output has no human oversight assigned. Denied under EU AI Act Article 26(2)."
 } if {
     input.snapshot.tool_call.name == "external_analytics"
-    not input.snapshot.tool_call.args.human_oversight_assigned
+    not input.snapshot.tool_call.args.human_oversight_assigned == true
+    not input.snapshot.tool_call.args.human_oversight_assigned == "requested"
 }
 
 # --- startup_verdict: agent_startup, always fires once per agent session ---

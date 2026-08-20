@@ -16,11 +16,13 @@ from agent_control_specification import AgentControl, AgentControlBlocked
 
 import tools
 from citations import load_citation_index, format_citation
+from neo4j_check import Neo4jCrossCheck
 
 RISK_ESCALATION_THRESHOLD = 0.5
 
 
-async def run_agent(scenario_name: str, governance_flags: dict) -> None:
+async def run_agent(scenario_name: str, governance_flags: dict, approval_resolver=None,
+                     neo4j_checker: Neo4jCrossCheck | None = None) -> None:
     print(f"\n{'=' * 70}\nSCENARIO: {scenario_name}\n{'=' * 70}")
 
     control = AgentControl.from_path("manifest.yaml")
@@ -32,6 +34,9 @@ async def run_agent(scenario_name: str, governance_flags: dict) -> None:
         if record:
             print(f"  -> DENIED. {format_citation(record)}")
             print(f"     \"{record['obligation']['citation_text'].strip()}\"")
+            if neo4j_checker:
+                live_check = neo4j_checker.check_record(record)
+                print(f"     [live graph cross-check] {live_check}")
         else:
             print(f"  -> DENIED. (no matching record for reason: {reason})")
 
@@ -110,37 +115,67 @@ async def run_agent(scenario_name: str, governance_flags: dict) -> None:
                 "human_oversight_assigned": governance_flags["human_oversight_assigned"],
             },
             lambda args: tools.external_analytics(args["patient_id"], args["payload"]),
+            approval_resolver=approval_resolver,
         )
-        print(f"  -> ALLOWED. {analytics_result.value}")
+        print(f"  -> ALLOWED (verdict={analytics_result.pre_tool_call_result.verdict.decision}). "
+              f"{analytics_result.value}")
     except AgentControlBlocked as e:
         report_block(e)
 
 
 async def main():
-    # Scenario A: fully compliant -- every governance flag satisfied,
-    # everything allowed end to end.
-    await run_agent(
-        "A -- fully compliant run (ALLOW case)",
-        {
-            "lawful_basis_present": True,
-            "human_reviewed": True,
-            "purpose_authorised": True,
-            "human_oversight_assigned": True,
-        },
-    )
+    neo4j_checker = Neo4jCrossCheck()
+    try:
+        # Scenario A: fully compliant -- every governance flag satisfied,
+        # everything allowed end to end.
+        await run_agent(
+            "A -- fully compliant run (ALLOW case)",
+            {
+                "lawful_basis_present": True,
+                "human_reviewed": True,
+                "purpose_authorised": True,
+                "human_oversight_assigned": True,
+            },
+            neo4j_checker=neo4j_checker,
+        )
 
-    # Scenario B: no human review of the fall-risk score -- denied at
-    # Step 2, agent halts, never reaches send_patient_data or
-    # external_analytics (DENY case, with real branching).
-    await run_agent(
-        "B -- no human review of fall-risk score (DENY case)",
-        {
-            "lawful_basis_present": True,
-            "human_reviewed": False,
-            "purpose_authorised": True,
-            "human_oversight_assigned": True,
-        },
-    )
+        # Scenario B: no human review of the fall-risk score -- denied at
+        # Step 2, agent halts, never reaches send_patient_data or
+        # external_analytics (DENY case, with real branching). Denial
+        # reason is cross-checked live against the SHIELD Neo4j graph.
+        await run_agent(
+            "B -- no human review of fall-risk score (DENY case)",
+            {
+                "lawful_basis_present": True,
+                "human_reviewed": False,
+                "purpose_authorised": True,
+                "human_oversight_assigned": True,
+            },
+            neo4j_checker=neo4j_checker,
+        )
+
+        # Scenario C: human oversight for external_analytics has been
+        # requested but not yet confirmed -- ESCALATE case (Phase 4,
+        # optional). A human approval resolver approves it, and the call
+        # proceeds even though the underlying verdict remains "escalate".
+        def approve_resolver(intervention_point, result, **kwargs):
+            print(f"     [human reviewer approves escalation: {result.verdict.reason}]")
+            from agent_control_specification import ApprovalResolution
+            return ApprovalResolution.allow(result.action_identity)
+
+        await run_agent(
+            "C -- oversight requested, pending human approval (ESCALATE case)",
+            {
+                "lawful_basis_present": True,
+                "human_reviewed": True,
+                "purpose_authorised": True,
+                "human_oversight_assigned": "requested",
+            },
+            approval_resolver=approve_resolver,
+            neo4j_checker=neo4j_checker,
+        )
+    finally:
+        neo4j_checker.close()
 
 
 asyncio.run(main())
